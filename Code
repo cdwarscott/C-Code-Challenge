@@ -1,0 +1,95 @@
+using System;
+using System.Text;
+
+public class OldPhonePad
+{
+    // Mapping of keys to their corresponding letters.
+    private static readonly string[] keyMappings = new string[]
+    {
+        " ",    // 0
+        "",     // 1 (no letters mapped)
+        "ABC",  // 2
+        "DEF",  // 3
+        "GHI",  // 4
+        "JKL",  // 5
+        "MNO",  // 6
+        "PQRS", // 7
+        "TUV",  // 8
+        "WXYZ"  // 9
+    };
+
+    public static string ConvertInput(string input)
+    {
+        if (string.IsNullOrEmpty(input) || input[^1] != '#')
+        {
+            throw new ArgumentException("Input must end with '#'");
+        }
+
+        StringBuilder result = new StringBuilder();
+        int i = 0;
+
+        while (i < input.Length)
+        {
+            char currentChar = input[i];
+
+            if (currentChar == '#')
+            {
+                break;
+            }
+            else if (currentChar == '*')
+            {
+                // Backspace handling
+                if (result.Length > 0)
+                {
+                    result.Length--;
+                }
+                i++;
+            }
+            else if (char.IsDigit(currentChar))
+            {
+                int key = currentChar - '0';
+                int count = 1;
+
+                // Count the number of consecutive presses of the same key
+                while (i + count < input.Length && input[i + count] == currentChar)
+                {
+                    count++;
+                }
+
+                // Get the appropriate letter from the key mapping
+                if (keyMappings[key].Length > 0)
+                {
+                    int letterIndex = (count - 1) % keyMappings[key].Length;
+                    result.Append(keyMappings[key][letterIndex]);
+                }
+
+                // Move to the next character or after a space
+                i += count;
+                if (i < input.Length && input[i] == ' ')
+                {
+                    i++;
+                }
+            }
+            else if (currentChar == ' ')
+            {
+                // Skip spaces
+                i++;
+            }
+            else
+            {
+                throw new ArgumentException($"Invalid character in input: {currentChar}");
+            }
+        }
+
+        return result.ToString();
+    }
+
+    public static void Main(string[] args)
+    {
+        Console.WriteLine(ConvertInput("33#")); // Output: E
+        Console.WriteLine(ConvertInput("227*#")); // Output: B
+        Console.WriteLine(ConvertInput("4433555 555666#")); // Output: HELLO
+        Console.WriteLine(ConvertInput("8 88777444666*664#")); // Output: TURING
+    }
+}
+//test doc for coding challenge by colin
